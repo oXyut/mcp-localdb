@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres-dev
+    restart: always
+    ports:
+      - "15432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: devdb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    networks:
+      - dev-network
+      
+  python:
+    image: python:3.12-slim
+    container_name: python-dev
+    volumes:
+      - ./:/app
+    working_dir: /app
+    tty: true
+    networks:
+      - dev-network
+    depends_on:
+      - postgres
+
+networks:
+  dev-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
